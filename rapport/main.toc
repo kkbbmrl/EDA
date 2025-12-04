@@ -1,0 +1,41 @@
+\babel@toc {english}{}\relax 
+\select@language {english}
+\select@language {english}
+\select@language {english}
+\select@language {english}
+\babel@toc {arabic}{}\relax 
+\select@language {english}
+\babel@toc {english}{}\relax 
+\select@language {english}
+\contentsline {chapter}{Abreviations list}{viii}{chapter*.6}%
+\select@language {english}
+\contentsline {chapter}{List of Figures}{ix}{chapter*.8}%
+\select@language {english}
+\contentsline {chapter}{List of Tables}{x}{chapter*.9}%
+\select@language {english}
+\contentsline {chapter}{List of Algorithms}{xi}{chapter*.10}%
+\select@language {english}
+\select@language {english}
+\contentsline {chapter}{\numberline {1}\bgroup \beginL \latintext General Introduction\endL \egroup }{1}{chapter.1}%
+\select@language {english}
+\contentsline {chapter}{\numberline {2}\bgroup \beginL \latintext Title\endL \egroup }{2}{chapter.2}%
+\select@language {english}
+\contentsline {chapter}{\numberline {3}\bgroup \beginL \latintext Title\endL \egroup }{3}{chapter.3}%
+\select@language {english}
+\contentsline {chapter}{\numberline {4}\bgroup \beginL \latintext Title\endL \egroup }{4}{chapter.4}%
+\select@language {english}
+\contentsline {chapter}{\numberline {5}\bgroup \beginL \latintext General Conclusion\endL \egroup }{5}{chapter.5}%
+\contentsline {chapter}{References}{5}{chapter.5}%
+\select@language {english}
+\select@language {english}
+\contentsline {chapter}{\numberline {A}\bgroup \beginL \latintext Appendix A\endL \egroup }{7}{appendix.A}%
+\select@language {english}
+\contentsline {section}{\numberline {\if@rl \I {1.1}\else \textLR {1.1}\fi }\bgroup \beginL \latintext \endL \egroup }{7}{section.A.1}%
+\select@language {english}
+\contentsline {subsection}{\numberline {\if@rl \I {1.1.1}\else \textLR {1.1.1}\fi }\bgroup \beginL \latintext \endL \egroup }{7}{subsection.A.1.1}%
+\select@language {english}
+\contentsline {chapter}{\numberline {B}\bgroup \beginL \latintext Appendix B\endL \egroup }{8}{appendix.B}%
+\select@language {english}
+\contentsline {section}{\numberline {\if@rl \I {1.2}\else \textLR {2.1}\fi }\bgroup \beginL \latintext \endL \egroup }{8}{section.B.1}%
+\select@language {english}
+\contentsline {subsection}{\numberline {\if@rl \I {1.1.2}\else \textLR {2.1.1}\fi }\bgroup \beginL \latintext \endL \egroup }{8}{subsection.B.1.1}%
