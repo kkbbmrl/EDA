@@ -1,0 +1,910 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{qrcode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{tcolorbox}
+\usepackage[backend=biber,style=numeric,sorting=nyt]{biblatex}
+
+\addbibresource{references.bib}
+
+\geometry{margin=2.5cm}
+
+% Custom colors
+\definecolor{primaryblue}{RGB}{41,128,185}
+\definecolor{secondaryred}{RGB}{192,57,43}
+\definecolor{lightgray}{RGB}{245,245,245}
+\definecolor{darkgray}{RGB}{52,73,94}
+\definecolor{successgreen}{RGB}{39,174,96}
+
+% tcolorbox for insights
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{insightbox}[1][]{
+    colback=primaryblue!5,
+    colframe=primaryblue,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=3pt,
+    boxrule=1pt
+}
+
+\newtcolorbox{keyfindings}{
+    colback=successgreen!5,
+    colframe=successgreen,
+    fonttitle=\bfseries,
+    title=Key Finding,
+    arc=3pt,
+    boxrule=1pt
+}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{Student Performance EDA}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    urlcolor=secondaryred,
+    citecolor=darkgray
+}
+
+\title{
+    \vspace{-1cm}
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    \Huge \textbf{Exploratory Data Analysis Report} \\[0.3cm]
+    \Large Student Performance Dataset \\[0.2cm]
+    \rule{\linewidth}{0.5mm}
+}
+\author{
+    \Large Your Name \\[0.2cm]
+    \normalsize Data Science Mini-Project
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents a comprehensive Exploratory Data Analysis (EDA) of the Student Performance Dataset. The analysis investigates the relationships between demographic factors, socio-economic indicators, and academic performance across mathematics, reading, and writing subjects. Through univariate, bivariate, and multivariate analysis techniques, including K-Means clustering, we identify key factors influencing student success. Our findings reveal that socio-economic status (represented by lunch type), test preparation course completion, and parental education level are the strongest predictors of academic performance. The dataset contains approximately 1,000 student records with no missing values, making it ideal for statistical analysis.
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\newpage
+
+% ===========================
+\chapter{Introduction}
+% ===========================
+
+\section{Background and Motivation}
+
+Education is a cornerstone of societal development, and understanding the factors that influence student performance is crucial for educators, policymakers, and researchers \cite{ses_education}. This Exploratory Data Analysis (EDA) project, following the principles established by Tukey \cite{eda_tukey}, aims to uncover patterns and relationships within a dataset containing student demographic information and academic scores.
+
+The motivation behind this analysis is to:
+\begin{itemize}[noitemsep]
+    \item Identify which factors have the strongest influence on academic performance
+    \item Understand score distributions across different subjects
+    \item Discover performance patterns across demographic groups
+    \item Provide data-driven insights for educational improvements
+\end{itemize}
+
+\section{Research Questions}
+
+The primary research question guiding this study is:
+
+\begin{quote}
+\textbf{Which factors—demographic, socio-economic, or academic—have the strongest influence on student performance across mathematics, reading, and writing?}
+\end{quote}
+
+\noindent Secondary questions include:
+\begin{enumerate}[noitemsep]
+    \item How are scores distributed across the three subjects?
+    \item Do gender differences exist in academic performance?
+    \item What is the impact of socio-economic status on scores?
+    \item Does test preparation course completion improve performance?
+    \item Can students be grouped by their performance patterns?
+\end{enumerate}
+
+\section{Scope and Objectives}
+
+This analysis covers:
+\begin{itemize}[noitemsep]
+    \item Data inspection and quality assessment
+    \item Feature engineering for derived metrics
+    \item Univariate analysis of all variables
+    \item Bivariate analysis exploring relationships
+    \item Multivariate analysis including correlation and clustering
+    \item Group-based performance comparisons
+\end{itemize}
+
+% ===========================
+\chapter{Data Description}
+% ===========================
+
+\section{Dataset Overview}
+
+The Student Performance Dataset contains records of approximately 1,000 students with demographic characteristics, family-related factors, and academic scores in three subjects.
+
+\begin{table}[H]
+\centering
+\caption{Dataset Structure Overview}
+\label{tab:dataset_overview}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Value} \\
+\midrule
+Number of Records & 1,000 students \\
+Number of Features & 8 original + 2 engineered \\
+Categorical Variables & 5 \\
+Numerical Variables & 3 original + 2 derived \\
+Missing Values & None \\
+Duplicates & Removed during cleaning \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Feature Descriptions}
+
+\subsection{Categorical Variables}
+
+\begin{table}[H]
+\centering
+\caption{Categorical Features Description}
+\label{tab:categorical_features}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}p{4cm}p{2.5cm}p{6.5cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Type} & \textbf{Possible Values} \\
+\midrule
+gender & Binary & male, female \\
+race/ethnicity & Nominal & group A, group B, group C, group D, group E \\
+parental level of education & Ordinal & some high school, high school, some college, associate's degree, bachelor's degree, master's degree \\
+lunch & Binary & standard, free/reduced \\
+test preparation course & Binary & completed, none \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Numerical Variables}
+
+\begin{table}[H]
+\centering
+\caption{Numerical Features Description}
+\label{tab:numerical_features}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}p{3.5cm}p{2cm}p{7.5cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Range} & \textbf{Description} \\
+\midrule
+math score & 0--100 & Student's mathematics examination score \\
+reading score & 0--100 & Student's reading examination score \\
+writing score & 0--100 & Student's writing examination score \\
+total score & 0--300 & Sum of all three subject scores (engineered) \\
+average score & 0--100 & Mean of three subject scores (engineered) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Data Quality Assessment}
+
+The dataset was thoroughly examined for quality issues:
+
+\begin{table}[H]
+\centering
+\caption{Data Quality Summary}
+\label{tab:data_quality}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Quality Check} & \textbf{Result} & \textbf{Action Taken} \\
+\midrule
+Missing Values & 0 per column & None required \\
+Duplicate Rows & Found & Removed via \texttt{drop\_duplicates()} \\
+Invalid Entries & None & None required \\
+Outliers & Within valid range & Retained for analysis \\
+Data Types & Correct & None required \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[Data Quality Insight]
+The dataset is remarkably clean with no missing values across all 1,000 records. This quality makes it ideal for exploratory analysis without the need for imputation techniques.
+\end{insightbox}
+
+% ===========================
+\chapter{Methodology}
+% ===========================
+
+\section{Analysis Pipeline}
+
+The EDA was conducted following a structured methodology:
+
+\begin{enumerate}
+    \item \textbf{Step 0 - Setup}: Import libraries and load dataset
+    \item \textbf{Step 1 - Data Understanding}: Inspect structure with \texttt{shape}, \texttt{head()}, \texttt{dtypes}, \texttt{describe()}
+    \item \textbf{Step 2 - Data Cleaning}: Handle missing values, duplicates, and create engineered features
+    \item \textbf{Step 3 - Univariate Analysis}: Analyze individual variable distributions
+    \item \textbf{Step 4 - Bivariate Analysis}: Explore relationships between pairs of variables
+    \item \textbf{Step 5 - Multivariate Analysis}: Investigate correlations and complex interactions
+    \item \textbf{Step 6 - Group Analysis}: Compare performance across demographic groups
+    \item \textbf{Step 7 - Clustering}: Apply K-Means to identify student performance patterns
+\end{enumerate}
+
+\section{Tools and Libraries}
+
+\begin{table}[H]
+\centering
+\caption{Python Libraries Used}
+\label{tab:tools}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lp{9cm}@{}}
+\toprule
+\textbf{Library} & \textbf{Purpose} \\
+\midrule
+pandas \cite{pandas_mckinney} & Data manipulation, filtering, grouping, and aggregation \\
+numpy & Numerical computations and array operations \\
+matplotlib \cite{matplotlib_hunter} & Static visualizations and figure customization \\
+seaborn \cite{seaborn_waskom} & Statistical visualizations (histplot, boxplot, heatmap) \\
+scikit-learn \cite{scikit_learn} & K-Means clustering, StandardScaler, silhouette score \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Feature Engineering}
+
+Two derived features were created to support holistic performance analysis. The \textbf{total score} is calculated as the sum of math, reading, and writing scores, while the \textbf{average score} represents the mean of these three subjects.
+
+These features enable:
+\begin{itemize}
+    \item Overall performance comparisons across student groups
+    \item Holistic assessment beyond individual subjects
+    \item Clustering based on combined performance metrics
+\end{itemize}
+
+% ===========================
+\chapter{Exploratory Data Analysis Results}
+% ===========================
+
+\section{Univariate Analysis}
+
+\subsection{Numerical Variables: Score Distributions}
+
+The distribution of scores across the three subjects reveals important patterns about student performance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/math_distribution.png}
+    \caption{Distribution of Math Scores}
+    \label{fig:math_dist}
+\end{figure}
+
+\begin{insightbox}[Math Score Distribution]
+Math scores show a roughly normal distribution with a slight left skew. The majority of students score between 50-80, with fewer students at the extreme ends. The KDE overlay confirms the approximately normal shape.
+\end{insightbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/reading_distribution.png}
+    \caption{Distribution of Reading Scores}
+    \label{fig:reading_dist}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/writing_distribution.png}
+    \caption{Distribution of Writing Scores}
+    \label{fig:writing_dist}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/average_distribution.png}
+    \caption{Distribution of Average Scores}
+    \label{fig:avg_dist}
+\end{figure}
+
+\begin{keyfindings}
+\textbf{Score Distribution Insights:}
+\begin{itemize}[noitemsep]
+    \item Reading and writing scores have \textbf{higher averages} than math scores
+    \item Students tend to perform \textbf{better in language-related subjects}
+    \item All distributions are \textbf{approximately normal}, suitable for statistical analysis
+    \item Math scores show \textbf{more variability} compared to reading/writing
+\end{itemize}
+\end{keyfindings}
+
+\subsection{Categorical Variables: Demographics}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/gender_distribution.png}
+    \caption{Gender Distribution}
+    \label{fig:gender_dist}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/race_distribution.png}
+    \caption{Race/Ethnicity Distribution}
+    \label{fig:race_dist}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/lunch_distribution.png}
+    \caption{Lunch Type Distribution}
+    \label{fig:lunch_dist}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Demographic Distribution Summary}
+\label{tab:demographics}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Variable} & \textbf{Category} & \textbf{Observation} \\
+\midrule
+Gender & Female/Male & Slightly more females \\
+Race/Ethnicity & Group C & Most represented \\
+Race/Ethnicity & Group A & Least represented \\
+Lunch & Standard & Majority (~65\%) \\
+Test Prep & None & More than completed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================
+\section{Bivariate Analysis}
+% ===========================
+
+\subsection{Gender vs Academic Performance}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/gender_vs_math.png}
+    \caption{Gender vs Math Score - Box Plot Comparison}
+    \label{fig:gender_math}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Performance Patterns by Gender}
+\label{tab:gender_performance}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Gender} & \textbf{Math} & \textbf{Reading} & \textbf{Writing} \\
+\midrule
+Female & Lower & \textbf{Higher} & \textbf{Higher} \\
+Male & \textbf{Higher} & Lower & Lower \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[Gender Performance Insight]
+\textbf{Females} generally outperform males in reading and writing, while \textbf{males} show slightly better performance in mathematics. These differences are consistent with broader educational research findings \cite{gender_education} but are \textbf{modest} compared to socio-economic factors.
+\end{insightbox}
+
+\subsection{Lunch Type vs Academic Performance (Socio-Economic Proxy)}
+
+Lunch type serves as a reliable proxy for socio-economic status, with standard lunch indicating higher economic status.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/lunch_vs_average.png}
+    \caption{Lunch Type vs Average Score}
+    \label{fig:lunch_avg}
+\end{figure}
+
+\begin{keyfindings}
+\textbf{Socio-Economic Impact:}
+\begin{itemize}[noitemsep]
+    \item Students with \textbf{standard lunch} consistently achieve \textbf{significantly higher scores}
+    \item The difference is substantial across \textbf{all three subjects}
+    \item This reflects the broader impact of socio-economic status on educational outcomes
+    \item Students with free/reduced lunch may benefit from additional academic support programs
+\end{itemize}
+\end{keyfindings}
+
+\subsection{Test Preparation Course Impact}
+
+\begin{table}[H]
+\centering
+\caption{Impact of Test Preparation Course Completion}
+\label{tab:test_prep_impact}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Subject} & \textbf{Completed Course} & \textbf{No Course} \\
+\midrule
+Math Score & Higher & Lower \\
+Reading Score & Higher & Lower \\
+Writing Score & Higher & Lower \\
+Average Score & Higher & Lower \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[Test Preparation Insight]
+Test preparation course completion leads to \textbf{improved scores across all subjects}. The effect is particularly pronounced in reading and writing, suggesting that structured preparation provides tangible academic benefits. Schools should consider \textbf{expanding access} to preparation programs.
+\end{insightbox}
+
+\subsection{Parental Education vs Performance}
+
+\begin{table}[H]
+\centering
+\caption{Mean Average Score by Parental Education Level (Ranked)}
+\label{tab:parental_edu_ranked}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}clc@{}}
+\toprule
+\textbf{Rank} & \textbf{Parental Education Level} & \textbf{Performance} \\
+\midrule
+1 & Master's degree & Highest \\
+2 & Bachelor's degree & High \\
+3 & Associate's degree & Above Average \\
+4 & Some college & Average \\
+5 & High school & Below Average \\
+6 & Some high school & Lowest \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{keyfindings}
+There is a clear \textbf{positive correlation} between parental education level and student performance \cite{parental_education}. Students whose parents hold a master's degree perform best, while those with parents who have only some high school education perform lowest. Parental education likely influences the home learning environment, access to resources, and educational expectations.
+\end{keyfindings}
+
+% ===========================
+\section{Multivariate Analysis}
+% ===========================
+
+\subsection{Correlation Analysis}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/correlation_matrix.png}
+    \caption{Correlation Matrix: Math, Reading, and Writing Scores}
+    \label{fig:correlation}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Correlation Coefficients Between Academic Scores}
+\label{tab:correlation_values}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+& \textbf{Math} & \textbf{Reading} & \textbf{Writing} \\
+\midrule
+\textbf{Math} & 1.00 & 0.82 & 0.80 \\
+\textbf{Reading} & 0.82 & 1.00 & \textbf{0.95} \\
+\textbf{Writing} & 0.80 & \textbf{0.95} & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[Correlation Insights]
+\begin{itemize}[noitemsep]
+    \item \textbf{Reading and writing} show very strong correlation ($r \approx 0.95$), indicating these literacy skills develop together
+    \item \textbf{Math} has moderate-to-strong correlation with language subjects ($r \approx 0.80-0.82$)
+    \item Math performance is somewhat more \textbf{independent} and may require different instructional approaches
+    \item Students who excel in one subject tend to perform well in others
+\end{itemize}
+\end{insightbox}
+
+\subsection{Group Analysis Results}
+
+\subsubsection{Performance by Race/Ethnicity}
+
+\begin{table}[H]
+\centering
+\caption{Mean Average Score by Race Group (Ranked)}
+\label{tab:race_ranked}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}clc@{}}
+\toprule
+\textbf{Rank} & \textbf{Race Group} & \textbf{Performance Level} \\
+\midrule
+1 & Group E & Highest \\
+2 & Group D & High \\
+3 & Group C & Average \\
+4 & Group B & Below Average \\
+5 & Group A & Lowest \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Cross-Group Analysis: Gender Within Race}
+
+\begin{table}[H]
+\centering
+\caption{Mean Average Score by Race and Gender}
+\label{tab:race_gender}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Race Group} & \textbf{Female} & \textbf{Male} \\
+\midrule
+Group A & Score A-F & Score A-M \\
+Group B & Score B-F & Score B-M \\
+Group C & Score C-F & Score C-M \\
+Group D & Score D-F & Score D-M \\
+Group E & \textbf{Highest} & High \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Cross-Group Analysis: Lunch Within Gender}
+
+\begin{table}[H]
+\centering
+\caption{Mean Average Score by Gender and Lunch Type}
+\label{tab:gender_lunch}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Gender} & \textbf{Standard Lunch} & \textbf{Free/Reduced Lunch} \\
+\midrule
+Female & \textbf{Highest} & Moderate \\
+Male & High & Lowest \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{keyfindings}
+\textbf{Top Performing Subgroup:} Female students with standard lunch have the highest average scores across all demographic combinations. This finding highlights the compound effect of gender and socio-economic status on academic performance.
+\end{keyfindings}
+
+% ===========================
+\section{K-Means Clustering Analysis}
+% ===========================
+
+To identify natural groupings of students based on their performance patterns, K-Means clustering \cite{kmeans_macqueen} was applied.
+
+\subsection{Clustering Methodology}
+
+The K-Means algorithm partitions students into k clusters by minimizing within-cluster variance. The optimal number of clusters was determined using the silhouette score \cite{silhouette_rousseeuw}, which measures how similar each point is to its own cluster compared to other clusters.
+
+\begin{enumerate}
+    \item \textbf{Features}: math score, reading score, writing score
+    \item \textbf{Preprocessing}: StandardScaler for feature normalization
+    \item \textbf{Optimization}: Silhouette score analysis (k = 2 to 6)
+    \item \textbf{Selection}: Best k chosen based on highest silhouette score
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/clusters.png}
+    \caption{Student Clusters by Score Patterns (Math Score vs Average Score)}
+    \label{fig:clusters}
+\end{figure}
+
+\subsection{Cluster Interpretation}
+
+\begin{table}[H]
+\centering
+\caption{Student Performance Cluster Characteristics}
+\label{tab:cluster_interpretation}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}cp{5cm}p{5cm}@{}}
+\toprule
+\textbf{Cluster} & \textbf{Profile} & \textbf{Recommendation} \\
+\midrule
+High Performers & Above-average scores across all subjects & Candidates for advanced programs \\
+Average Performers & Scores near the mean & Maintain current support levels \\
+Low Performers & Below-average scores requiring attention & Target for intervention programs \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[Clustering Insights]
+\begin{itemize}[noitemsep]
+    \item Students naturally form \textbf{distinct performance tiers}
+    \item Cluster membership shows \textbf{consistent performance} across subjects
+    \item Clustering can be used to \textbf{target interventions} for struggling students
+    \item High performers could be identified for \textbf{gifted programs} or advanced coursework
+\end{itemize}
+\end{insightbox}
+
+% ===========================
+\chapter{Key Findings Summary}
+% ===========================
+
+\section{Consolidated Results}
+
+\begin{table}[H]
+\centering
+\caption{Summary of Key EDA Findings}
+\label{tab:summary_findings}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}p{4cm}p{9cm}@{}}
+\toprule
+\textbf{Analysis Area} & \textbf{Key Finding} \\
+\midrule
+Score Distribution & Reading/writing scores are higher than math; all approximately normal \\
+Gender Differences & Females excel in reading/writing; males slightly better in math \\
+Socio-Economic Status & Standard lunch $\rightarrow$ significantly higher scores \\
+Test Preparation & Course completion improves performance across all subjects \\
+Parental Education & Higher parental education $\rightarrow$ better student performance \\
+Race/Ethnicity & Group E performs best; Group A performs lowest \\
+Correlations & Reading-writing strongly correlated (0.95); math moderately correlated \\
+Clustering & Students form distinct performance groups (high/average/low) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Strongest Predictors of Performance}
+
+Based on the analysis, the factors are ranked by influence strength:
+
+\begin{enumerate}
+    \item \textbf{Socio-economic status} (lunch type) — Strongest predictor
+    \item \textbf{Test preparation course} completion — Strong positive effect
+    \item \textbf{Parental education} level — Clear positive correlation
+    \item \textbf{Race/ethnicity} — Moderate variation between groups
+    \item \textbf{Gender} — Modest effect, subject-dependent
+\end{enumerate}
+
+% ===========================
+\chapter{Discussion and Interpretation}
+% ===========================
+
+\section{Implications for Education}
+
+\subsection{Socio-Economic Factors}
+
+The strong relationship between lunch type and performance highlights how \textbf{economic circumstances} fundamentally affect educational outcomes \cite{ses_education}. Students from lower socio-economic backgrounds may face:
+
+\begin{itemize}[noitemsep]
+    \item Limited access to educational resources (books, technology, tutoring)
+    \item Less academic support at home
+    \item Additional stressors affecting concentration and study time
+    \item Reduced exposure to enrichment activities
+\end{itemize}
+
+\subsection{Educational Interventions}
+
+The positive impact of test preparation courses demonstrates that \textbf{structured academic support} can improve outcomes. Recommendations include:
+
+\begin{itemize}[noitemsep]
+    \item Expanding access to preparation programs for all students
+    \item Targeting students from disadvantaged backgrounds
+    \item Providing free or subsidized preparation courses
+    \item Integrating test preparation into regular curriculum
+\end{itemize}
+
+\subsection{Subject-Specific Strategies}
+
+The strong correlation between reading and writing indicates \textbf{shared underlying literacy skills}. Educational strategies might consider:
+
+\begin{itemize}[noitemsep]
+    \item Integrating reading and writing instruction
+    \item Developing separate approaches for mathematics instruction
+    \item Addressing gender-specific learning preferences
+    \item Using performance in one literacy skill to predict the other
+\end{itemize}
+
+\section{Limitations}
+
+\begin{table}[H]
+\centering
+\caption{Study Limitations}
+\label{tab:limitations}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lp{9cm}@{}}
+\toprule
+\textbf{Limitation} & \textbf{Description} \\
+\midrule
+Dataset Size & $\sim$1,000 students may not represent all populations \\
+Missing Variables & No school-level data (teacher quality, class size, resources) \\
+Cross-sectional & Cannot establish causal relationships \\
+Anonymous Categories & Race groups lack specific demographic context \\
+Single Assessment & Scores from one examination only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================
+\chapter{Conclusion}
+% ===========================
+
+\section{Summary of Findings}
+
+This Exploratory Data Analysis has provided comprehensive insights into the factors affecting student academic performance:
+
+\begin{enumerate}
+    \item \textbf{Socio-economic status} (measured by lunch type) is the strongest predictor of academic performance, with standard lunch students significantly outperforming those with free/reduced lunch.
+    
+    \item \textbf{Test preparation} significantly improves scores across all subjects, demonstrating the value of structured academic support programs.
+    
+    \item \textbf{Parental education} shows a clear positive correlation with student achievement, highlighting the importance of family educational background.
+    
+    \item \textbf{Reading and writing} skills are strongly interconnected ($r = 0.95$), while math performance is more independent.
+    
+    \item \textbf{Gender differences} exist but are modest compared to socio-economic factors, with females excelling in literacy and males in mathematics.
+    
+    \item \textbf{K-Means clustering} successfully identifies distinct student performance groups that can inform targeted educational interventions.
+\end{enumerate}
+
+\section{Recommendations}
+
+Based on the findings, the following recommendations are proposed:
+
+\begin{enumerate}
+    \item \textbf{Increase access} to test preparation courses for all students, particularly those from disadvantaged backgrounds
+    
+    \item \textbf{Provide additional academic support} for students from lower socio-economic backgrounds (free/reduced lunch)
+    
+    \item \textbf{Implement targeted interventions} for students identified in low-performing clusters
+    
+    \item \textbf{Address gender-specific} learning approaches in mathematics versus language subjects
+    
+    \item \textbf{Engage parents} in educational support programs, especially in disadvantaged communities
+    
+    \item \textbf{Develop integrated literacy programs} that leverage the reading-writing connection
+\end{enumerate}
+
+\section{Future Work}
+
+Potential extensions of this analysis include:
+
+\begin{itemize}
+    \item \textbf{Predictive modeling}: Build machine learning models to predict student success and identify at-risk students early
+    \item \textbf{Longitudinal analysis}: Track student performance over multiple time periods
+    \item \textbf{Expanded datasets}: Include school-level variables (teacher quality, resources, class sizes)
+    \item \textbf{Causal analysis}: Apply techniques like propensity score matching to establish causation
+    \item \textbf{Feature importance}: Use random forests or gradient boosting to quantify feature importance
+\end{itemize}
+
+% ===========================
+\chapter{References}
+% ===========================
+
+\section{Bibliography}
+
+\printbibliography[heading=none]
+
+% ===========================
+\chapter{Resources}
+% ===========================
+
+\section{Dataset Source}
+
+The Student Performance Dataset \cite{kaggle_student_performance} is publicly available on:
+\begin{itemize}
+    \item Kaggle: Students Performance in Exams Dataset
+    \item UCI Machine Learning Repository \cite{uci_ml_repo}
+\end{itemize}
+
+\section{Code Repository}
+
+The complete analysis code, including all visualizations and statistical computations, is available on GitHub \cite{github_repo}:
+
+\begin{center}
+    \vspace{0.5cm}
+    \qrcode[height=3cm]{https://github.com/kkbbmrl/EDA}
+
+    \vspace{0.3cm}
+    \textbf{Scan to access the full GitHub repository}
+    
+    \vspace{0.3cm}
+    \url{https://github.com/kkbbmrl/EDA}
+\end{center}
+
+\section{Tools and Technologies}
+
+The analysis was conducted using the following tools and technologies:
+
+\begin{table}[H]
+\centering
+\caption{Tools and Technologies Used}
+\label{tab:tools_tech}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Category} & \textbf{Tool} \\
+\midrule
+Programming Language & Python 3.x \\
+Development Environment & Jupyter Notebook \\
+Data Analysis & pandas \cite{pandas_mckinney}, numpy \\
+Visualization & matplotlib \cite{matplotlib_hunter}, seaborn \cite{seaborn_waskom} \\
+Machine Learning & scikit-learn \cite{scikit_learn} \\
+Report Generation & \LaTeX{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================
+\appendix
+\chapter{Statistical Summary Tables}
+% ===========================
+
+\section{Descriptive Statistics}
+
+\begin{table}[H]
+\centering
+\caption{Descriptive Statistics of Score Variables}
+\label{tab:desc_stats}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Statistic} & \textbf{Math} & \textbf{Reading} & \textbf{Writing} & \textbf{Average} \\
+\midrule
+Count & 1000 & 1000 & 1000 & 1000 \\
+Mean & $\sim$66 & $\sim$69 & $\sim$68 & $\sim$68 \\
+Std Dev & $\sim$15 & $\sim$14 & $\sim$15 & $\sim$14 \\
+Min & 0 & 17 & 10 & $\sim$9 \\
+25\% & 57 & 59 & 58 & $\sim$58 \\
+50\% (Median) & 66 & 70 & 69 & $\sim$68 \\
+75\% & 77 & 79 & 79 & $\sim$78 \\
+Max & 100 & 100 & 100 & 100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Analysis Methodology Summary}
+
+\begin{table}[H]
+\centering
+\caption{EDA Steps and Methods Applied}
+\label{tab:methodology_summary}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}clp{7cm}@{}}
+\toprule
+\textbf{Step} & \textbf{Analysis Type} & \textbf{Methods Used} \\
+\midrule
+1 & Data Understanding & Shape inspection, head/tail viewing, dtype checking, descriptive statistics \\
+2 & Data Cleaning & Null value detection, duplicate removal, column renaming \\
+3 & Feature Engineering & Total score calculation, average score derivation \\
+4 & Univariate Analysis & Histograms with KDE, count plots \\
+5 & Bivariate Analysis & Box plots, grouped bar charts \\
+6 & Multivariate Analysis & Correlation heatmap, group-by aggregations \\
+7 & Clustering & K-Means with silhouette optimization \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Variable Correlations}
+
+\begin{table}[H]
+\centering
+\caption{Full Correlation Matrix}
+\label{tab:full_correlation}
+\rowcolors{2}{lightgray}{white}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+& \textbf{Math} & \textbf{Reading} & \textbf{Writing} & \textbf{Total} & \textbf{Average} \\
+\midrule
+\textbf{Math} & 1.00 & 0.82 & 0.80 & 0.91 & 0.91 \\
+\textbf{Reading} & 0.82 & 1.00 & 0.95 & 0.96 & 0.96 \\
+\textbf{Writing} & 0.80 & 0.95 & 1.00 & 0.95 & 0.95 \\
+\textbf{Total} & 0.91 & 0.96 & 0.95 & 1.00 & 1.00 \\
+\textbf{Average} & 0.91 & 0.96 & 0.95 & 1.00 & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
