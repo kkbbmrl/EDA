@@ -221,55 +221,34 @@
         total\_score = math + reading + writing\\
         average\_score = total\_score / 3
     \end{tcolorbox}
-\end{frame}
+    \end{frame}
 
 % ============ SLIDE 5: UNIVARIATE - NUMERICAL ============
 \begin{frame}{Univariate Analysis: Score Distributions}
-    \begin{columns}[T]
-        \column{0.52\textwidth}
-        \begin{center}
-            \includegraphics[width=0.95\textwidth]{images/math_distribution.png}
-        \end{center}
-        
-        \column{0.46\textwidth}
-        \begin{tcolorbox}[insightbox, title=Insights]
-            \scriptsize
-            \begin{itemize}\setlength{\itemsep}{1pt}
-                \item \textbf{Math:} Mean $\approx$ 66
-                \item \textbf{Reading:} Mean $\approx$ 69
-                \item \textbf{Writing:} Mean $\approx$ 68
-                \item Better in reading/writing
-                \item Slightly left-skewed
-            \end{itemize}
-        \end{tcolorbox}
-    \end{columns}
+    \begin{center}
+        \includegraphics[width=0.88\textwidth, height=0.62\textheight, keepaspectratio]{images/all_scores_distribution.png}
+    \end{center}
+    
+    \vspace{-0.15cm}
+    
+    \begin{tcolorbox}[insightbox, title=Insights, width=0.95\textwidth]
+        \tiny
+        \textbf{Math:} 66 \quad \textbf{Reading:} 69 \quad \textbf{Writing:} 68 \quad | \quad Better in reading/writing; slightly left-skewed
+    \end{tcolorbox}
 \end{frame}
 
 % ============ SLIDE 6: UNIVARIATE - CATEGORICAL ============
 \begin{frame}{Univariate Analysis: Categorical Variables}
-    \begin{columns}[T]
-        \column{0.52\textwidth}
-        \begin{center}
-            \includegraphics[width=0.95\textwidth]{images/gender_distribution.png}
-        \end{center}
-        
-        \column{0.46\textwidth}
-        \begin{tcolorbox}[insightbox, title=Distribution]
-            \scriptsize
-            \textbf{Gender:}
-            \begin{itemize}\setlength{\itemsep}{0pt}
-                \item Female: 51.8\%
-                \item Male: 48.2\%
-            \end{itemize}
-            
-            \vspace{0.1cm}
-            \textbf{Test Prep:}
-            \begin{itemize}\setlength{\itemsep}{0pt}
-                \item Completed: 35.8\%
-                \item Not completed: 64.2\%
-            \end{itemize}
-        \end{tcolorbox}
-    \end{columns}
+    \begin{center}
+        \includegraphics[width=0.88\textwidth, height=0.62\textheight, keepaspectratio]{images/gender_testprep_distribution.png}
+    \end{center}
+    
+    \vspace{-0.15cm}
+    
+    \begin{tcolorbox}[insightbox, title=Distribution, width=0.95\textwidth]
+        \tiny
+        \textbf{Gender:} Female 51.8\% | Male 48.2\% \quad \textbf{Test Prep:} Completed 35.8\% | Not completed 64.2\%
+    \end{tcolorbox}
 \end{frame}
 
 % ============ SLIDE 7: BIVARIATE - CORRELATION ============
@@ -646,8 +625,9 @@
         
         \begin{tcolorbox}[moderncard, title=Contact, width=0.55\textwidth]
             \centering\scriptsize
-            bachir.zekhnine@univ-bba.dz\\[0.1cm]
-            github.com/kkbbmrl/EDA
+             \faEnvelope\ mouhamed.souici@univ-bba.dz\\[0.1cm]
+            \faEnvelope\ bachir.zekhnine@univ-bba.dz\\[0.1cm]
+            \faGithub\ github.com/kkbbmrl/EDA
         \end{tcolorbox}
         
     \end{center}
